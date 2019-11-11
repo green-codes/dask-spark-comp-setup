@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    k8s-app: dask-worker
+  namespace: satellite-unicef
+spec:
+  restartPolicy: Never
+  containers:
+  - name: dask
+    # image: daskdev/dask:latest
+    image: gitlab-registry.nautilus.optiputer.net/greencodes/images/master/dask-worker-210:latest
+    imagePullPolicy: Always
+    args: [dask-worker, --nthreads, '2', --no-dashboard, --memory-limit, 6GB, --death-timeout, '60']
+    env:
+      - name: EXTRA_PIP_PACKAGES
+        value: fastparquet git+https://github.com/dask/distributed
+    resources:
+      limits:
+        memory: "1G"
+#         cpu: 2
+        # nvidia.com/gpu: 1
+      requests:
+#         memory: "1G"
+#         cpu: 2
+        # nvidia.com/gpu: 1
+#     volumeMounts:
+#       - name: ceph
+#         mountPath: "/ceph"
+#   volumes:
+#     - name: ceph
+#       persistentVolumeClaim:
+#         claimName: satellite-unicef-cephfs

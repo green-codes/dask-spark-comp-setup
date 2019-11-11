@@ -1,0 +1,41 @@
+https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/
+
+Worker Pod image building
+- start from a common lightweight ML image (e.g. tags in ufoym/deepo)
+- write a docker file to add dependencies (dask and dask-ml)
+- build and push the image to a registry
+
+Prerequisites
+- install docker-ce on all machines (easy)
+- install kubeadm on all machines (easy)
+
+Master node
+- login as root
+- disable firewalls for 443/tcp, 8080/tcp and 6443/tcp
+- #swapoff -a  #disable all swap partitions; kube doesn't like swap
+- #kubeadm init --pod-network-cidr=<network plugin dependent>
+- #export KUBECONFIG=/etc/kubernetes/admin.conf  #allows using kubectl as root
+- #kubectl apply <network plugin dependent>  #initiate a network plugin
+- #kubectl taint node <master> node-role.kubernetes.io/master:NoSchedule- # allow pods on master
+- $mkdir ~/.kube && sudo cp /etc/kubernetes/admin.conf .kube/config && sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+Slave nodes
+- login as root
+- disable firewalls, if any
+- #swapoff -a
+- #kubeadm join ... $use the token given on kubeadm init on the master node
+
+NFS-based storage
+- $apt-get install nfs-kernel-server # on master
+- set up the nfs server using a couple of config files
+- use any of the available yaml files to create a PVC using the nfs mount
+
+Launching notebook pods
+- log into any user with appropriate kube config files
+- $kubectl create -f path-to/notebook-pod.yaml
+- $kubectl describe service <pod name> # get NodePort of the notebook pod
+- in a browser, use host:NodePort to open the notebook page
+
+Dask-specific configs
+- $kubectl create serviceaccount dask  #sa to allow dark to create pods
+- $kubectl create rolebinding dask-role --clusterrole=edit --serviceaccount=default:dask

@@ -1,0 +1,48 @@
+https://www.linode.com/docs/databases/hadoop/how-to-install-and-set-up-hadoop-cluster/
+
+Prerequisites
+- install openjdk-8-jre (or jdk)
+
+Hadoop
+- for every node: create a hadoop user
+- on the master node as Hadoop user: ssh-keygen, ssh-copy-id to self and all slave nodes 
+- for every node: download and extract binary package to ~/hadoop/
+- for every node: copy configs to ~/hadoop/etc, including for yarn
+  - lots of these, details online
+  - important changes:
+    - core-site.xml
+    - hdfs-site.xml
+    - mapred-site.xml
+    - workers
+    - yarn-site.xml
+    - (others?)
+- for every node: copy environment to /etc/environment
+- for every node: set env vars in ~/.bashrc (or copy bashrc file)
+- for every node: make sure that ~/data and /tmp/hadoop-hadoop doesn't exist
+- $hadoop namenode -format. # AFTER deleting above dirs! 
+- start-dfs.sh
+- chmod 777 hadoop home directory 
+- web ui at port 9870
+- file access at port 9000
+
+Yarn
+- assumes all above are done
+- start-yarn.sh
+- resource manager ui port at 8088
+- node ui port at 8042
+
+Spark
+- use the hadoop user
+- for every node: download and extract binary package to ~/spark/
+- for every node: copy configs to ~/spark/conf
+  - lots of these, details online
+- start-all.sh
+- master web ui at port 8080
+
+pySpark notebook 
+- NOTE: pyspark does NOT support cluster mode
+- NOTE: pyspark client mode does NOT work in pods
+- NOTE: install all pip packages as root (else packages are per-user)
+- pip3 install pyspark
+- pip3 install jupyter (restart shell)
+- configure jupyter server to use local 
